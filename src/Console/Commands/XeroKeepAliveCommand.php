@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcblogdev\Xero\Console\Commands;
+namespace Kurtnoone\Xero\Console\Commands;
 
-use Dcblogdev\Xero\Facades\Xero;
-use Dcblogdev\Xero\Models\XeroToken;
+use Kurtnoone\Xero\Facades\Xero;
+use Kurtnoone\Xero\Models\XeroToken;
 use Illuminate\Console\Command;
 
 class XeroKeepAliveCommand extends Command

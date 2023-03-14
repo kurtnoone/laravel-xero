@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcblogdev\Xero;
+namespace Kurtnoone\Xero;
 
 use Closure;
-use Dcblogdev\Xero\Facades\Xero;
+use Kurtnoone\Xero\Facades\Xero;
 
 class XeroAuthenticated
 {

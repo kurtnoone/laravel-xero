@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcblogdev\Xero\Resources;
+namespace Kurtnoone\Xero\Resources;
 
-use Dcblogdev\Xero\Facades\Xero;
+use Kurtnoone\Xero\Facades\Xero;
 
 class Webhooks extends Xero
 {

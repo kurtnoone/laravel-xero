@@ -1,9 +1,9 @@
 <?php
 
-namespace Dcblogdev\Xero\Tests;
+namespace Kurtnoone\Xero\Tests;
 
 use CreateXeroTokensTable;
-use Dcblogdev\Xero\XeroServiceProvider;
+use Kurtnoone\Xero\XeroServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra

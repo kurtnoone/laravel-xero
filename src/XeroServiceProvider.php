@@ -1,11 +1,11 @@
 <?php
 
-namespace Dcblogdev\Xero;
+namespace Kurtnoone\Xero;
 
-use Dcblogdev\Xero\Console\Commands\XeroKeepAliveCommand;
+use Kurtnoone\Xero\Console\Commands\XeroKeepAliveCommand;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
-use Dcblogdev\Xero\XeroAuthenticated;
+use Kurtnoone\Xero\XeroAuthenticated;
 
 class XeroServiceProvider extends ServiceProvider
 {

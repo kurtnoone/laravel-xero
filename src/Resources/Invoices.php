@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcblogdev\Xero\Resources;
+namespace Kurtnoone\Xero\Resources;
 
-use Dcblogdev\Xero\Facades\Xero;
+use Kurtnoone\Xero\Facades\Xero;
 
 class Invoices extends Xero
 {
@@ -39,7 +39,7 @@ class Invoices extends Xero
         return $result['body']['Invoices'][0];
     }
 
-    public function store(array $data) 
+    public function store(array $data)
     {
         $result = Xero::post('invoices', $data);
 

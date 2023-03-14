@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcblogdev\Xero\Facades;
+namespace Kurtnoone\Xero\Facades;
 
 use Illuminate\Support\Facades\Facade;
 

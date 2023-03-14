@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Dcblogdev\Xero\Models\XeroToken;
+use Kurtnoone\Xero\Models\XeroToken;
 
 class XeroShowAllCommand extends Command
 {

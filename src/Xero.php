@@ -1,11 +1,11 @@
 <?php
 
-namespace Dcblogdev\Xero;
+namespace Kurtnoone\Xero;
 
-use Dcblogdev\Xero\Models\XeroToken;
-use Dcblogdev\Xero\Resources\Contacts;
-use Dcblogdev\Xero\Resources\Invoices;
-use Dcblogdev\Xero\Resources\Webhooks;
+use Kurtnoone\Xero\Models\XeroToken;
+use Kurtnoone\Xero\Resources\Contacts;
+use Kurtnoone\Xero\Resources\Invoices;
+use Kurtnoone\Xero\Resources\Webhooks;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Client\RequestException;

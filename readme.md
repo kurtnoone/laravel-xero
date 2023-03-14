@@ -1,6 +1,6 @@
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/dcblogdev/laravel-xero.svg?style=flat-square)](https://packagist.org/packages/dcblogdev/laravel-xero)
-[![Total Downloads](https://img.shields.io/packagist/dt/dcblogdev/laravel-xero.svg?style=flat-square)](https://packagist.org/packages/dcblogdev/laravel-xero)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/Kurtnoone/laravel-xero.svg?style=flat-square)](https://packagist.org/packages/Kurtnoone/laravel-xero)
+[![Total Downloads](https://img.shields.io/packagist/dt/Kurtnoone/laravel-xero.svg?style=flat-square)](https://packagist.org/packages/Kurtnoone/laravel-xero)
 
 ![Logo](https://repository-images.githubusercontent.com/317929912/1e40a180-49c1-11eb-893d-af9c59d29ad5)
 
@@ -22,7 +22,7 @@ For OAuth 2.0 redirect URI enter the full URL you want to use for connection to 
 You can install the package via composer:
 
 ```
-composer require dcblogdev/laravel-xero
+composer require Kurtnoone/laravel-xero
 ```
 
 # Config
@@ -30,7 +30,7 @@ composer require dcblogdev/laravel-xero
 You can publish the config file with:
 
 ```
-php artisan vendor:publish --provider="Dcblogdev\Xero\XeroServiceProvider" --tag="config"
+php artisan vendor:publish --provider="Kurtnoone\Xero\XeroServiceProvider" --tag="config"
 ```
 
 # Migration
@@ -38,7 +38,7 @@ php artisan vendor:publish --provider="Dcblogdev\Xero\XeroServiceProvider" --tag
 You can publish the migration with:
 
 ```
-php artisan vendor:publish --provider="Dcblogdev\Xero\XeroServiceProvider" --tag="migrations"
+php artisan vendor:publish --provider="Kurtnoone\Xero\XeroServiceProvider" --tag="migrations"
 ```
 
 After the migration has been published you can create the tokens tables by running the migration:
@@ -71,7 +71,7 @@ Route::group(['middleware' => ['web', 'XeroAuthenticated'], function()
 To access token model reference this ORM model:
 
 ```php
-use Dcblogdev\Xero\Models\XeroToken;
+use Kurtnoone\Xero\Models\XeroToken;
 ```
 
 # Multi-tenancy
@@ -382,6 +382,6 @@ If you discover any security related issues, please email dave@dcblog.dev email 
 license. Please see the [license file][6] for more information.
 
 [3]:    changelog.md
-[4]:    https://github.com/dcblogdev/laravel-xero
+[4]:    https://github.com/Kurtnoone/laravel-xero
 [5]:    http://semver.org/
 [6]:    license.md

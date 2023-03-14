@@ -1,5 +1,5 @@
 {
-    "name": "dcblogdev/laravel-xero",
+    "name": "kurtnoone/laravel-xero",
     "description": "A Laravel Xero package",
     "license": "MIT",
     "authors": [
@@ -7,9 +7,14 @@
             "name": "David Carr",
             "email": "dave@dcblog.dev",
             "homepage": "https://dcblog.dev"
+        },
+        {
+            "name": "Kurt Noone",
+            "email": "kurt@kunos.co.uk",
+            "homepage": "https://kunos.co.uk"
         }
     ],
-    "homepage": "https://github.com/dcblogdev/laravel-xero",
+    "homepage": "https://github.com/Kurtnoone/laravel-xero",
     "keywords": ["Laravel", "Xero"],
     "require": {
         "illuminate/support": "5.5.x|5.6.x|5.7.x|5.8.x|6.x|7.x|8.x|9.x|10.x",
@@ -28,8 +33,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Dcblogdev\\Xero\\": "src/",
-            "Dcblogdev\\Xero\\Tests\\": "tests"
+            "Kurtnoone\\Xero\\": "src/",
+            "Kurtnoone\\Xero\\Tests\\": "tests"
         }
     },
     "autoload-dev": {
@@ -40,10 +45,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Dcblogdev\\Xero\\XeroServiceProvider"
+                "Kurtnoone\\Xero\\XeroServiceProvider"
             ],
             "aliases": {
-                "Xero": "Dcblogdev\\Xero\\Facades\\Xero"
+                "Xero": "Kurtnoone\\Xero\\Facades\\Xero"
             }
         }
     },

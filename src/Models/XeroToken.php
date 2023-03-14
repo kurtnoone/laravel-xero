@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcblogdev\Xero\Models;
+namespace Kurtnoone\Xero\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;

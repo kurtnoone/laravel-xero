@@ -1,8 +1,8 @@
 <?php
 
-use Dcblogdev\Xero\Facades\Xero as XeroFacade;
-use Dcblogdev\Xero\Models\XeroToken;
-use Dcblogdev\Xero\Xero;
+use Kurtnoone\Xero\Facades\Xero as XeroFacade;
+use Kurtnoone\Xero\Models\XeroToken;
+use Kurtnoone\Xero\Xero;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 

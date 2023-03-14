@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcblogdev\Xero\Resources;
+namespace Kurtnoone\Xero\Resources;
 
-use Dcblogdev\Xero\Facades\Xero;
+use Kurtnoone\Xero\Facades\Xero;
 
 class Contacts extends Xero
 {
@@ -25,14 +25,14 @@ class Contacts extends Xero
         return $result['body']['Contacts'][0];
     }
 
-    public function update(string $contactId, array $data) 
+    public function update(string $contactId, array $data)
     {
         $result = Xero::post('contacts/'.$contactId, $data);
 
         return $result['body']['Contacts'][0];
     }
 
-    public function store(array $data) 
+    public function store(array $data)
     {
         $result = Xero::post('contacts', $data);
 
