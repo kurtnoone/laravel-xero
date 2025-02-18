@@ -5,6 +5,7 @@ namespace Kurtnoone\Xero;
 use Kurtnoone\Xero\Models\XeroToken;
 use Kurtnoone\Xero\Resources\Contacts;
 use Kurtnoone\Xero\Resources\Invoices;
+use Kurtnoone\Xero\Resources\PurchaseOrders;
 use Kurtnoone\Xero\Resources\Accounts;
 use Kurtnoone\Xero\Resources\Webhooks;
 use Exception;
@@ -37,6 +38,11 @@ class Xero
     public function invoices(): Invoices
     {
         return new Invoices();
+    }
+
+    public function purchaseorders(): PurchaseOrders
+    {
+        return new PurchaseOrders();
     }
 
     public function accounts(): Accounts
