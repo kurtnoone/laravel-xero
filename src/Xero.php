@@ -7,6 +7,7 @@ use Kurtnoone\Xero\Resources\Contacts;
 use Kurtnoone\Xero\Resources\Invoices;
 use Kurtnoone\Xero\Resources\Payments;
 use Kurtnoone\Xero\Resources\Overpayments;
+use Kurtnoone\Xero\Resources\BankTransactions;
 use Kurtnoone\Xero\Resources\PurchaseOrders;
 use Kurtnoone\Xero\Resources\Accounts;
 use Kurtnoone\Xero\Resources\Webhooks;
@@ -50,6 +51,11 @@ class Xero
     public function overpayments(): Overpayments
     {
         return new Overpayments();
+    }
+
+    public function banktransactions(): BankTransactions
+    {
+        return new BankTransactions();
     }
 
 
