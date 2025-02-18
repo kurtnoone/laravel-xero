@@ -8,6 +8,7 @@ use Kurtnoone\Xero\Resources\Invoices;
 use Kurtnoone\Xero\Resources\Payments;
 use Kurtnoone\Xero\Resources\Overpayments;
 use Kurtnoone\Xero\Resources\BankTransactions;
+use Kurtnoone\Xero\Resources\CreditNotes;
 use Kurtnoone\Xero\Resources\PurchaseOrders;
 use Kurtnoone\Xero\Resources\Accounts;
 use Kurtnoone\Xero\Resources\Webhooks;
@@ -58,6 +59,10 @@ class Xero
         return new BankTransactions();
     }
 
+    public function creditnotes(): CreditNotes
+    {
+        return new CreditNotes();
+    }
 
     public function purchaseorders(): PurchaseOrders
     {
