@@ -1,7 +1,7 @@
 <?php
 
-use Dcblogdev\Xero\Facades\Xero;
-use Dcblogdev\Xero\Resources\Invoices;
+use Kurtnoone\Xero\Facades\Xero;
+use Kurtnoone\Xero\Resources\Invoices;
 
 test('invalid filter option throws exception', function () {
     Xero::invoices()
