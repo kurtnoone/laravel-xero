@@ -5,16 +5,13 @@ namespace Kurtnoone\Xero;
 use Kurtnoone\Xero\Console\Commands\XeroKeepAliveCommand;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
-use Kurtnoone\Xero\XeroAuthenticated;
 
 class XeroServiceProvider extends ServiceProvider
 {
     /**
      * Perform post-registration booting of services.
-     *
-     * @return void
      */
-    public function boot(Router $router)
+    public function boot(Router $router): void
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->registerCommands();
@@ -22,7 +19,7 @@ class XeroServiceProvider extends ServiceProvider
         $this->configurePublishing();
     }
 
-    public function registerCommands()
+    public function registerCommands(): void
     {
         if (! $this->app->runningInConsole()) {
             return;
@@ -33,13 +30,13 @@ class XeroServiceProvider extends ServiceProvider
         ]);
     }
 
-    public function registerMiddleware($router)
+    public function registerMiddleware($router): void
     {
         //add middleware
         $router->aliasMiddleware('XeroAuthenticated', XeroAuthenticated::class);
     }
 
-    public function configurePublishing()
+    public function configurePublishing(): void
     {
         if (! $this->app->runningInConsole()) {
             return;
@@ -57,13 +54,10 @@ class XeroServiceProvider extends ServiceProvider
         ], 'migrations');
     }
 
-
     /**
      * Register any package services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/xero.php', 'xero');
 
@@ -75,10 +69,8 @@ class XeroServiceProvider extends ServiceProvider
 
     /**
      * Get the services provided by the provider.
-     *
-     * @return array
      */
-    public function provides()
+    public function provides(): array
     {
         return ['xero'];
     }

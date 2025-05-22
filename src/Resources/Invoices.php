@@ -2,47 +2,76 @@
 
 namespace Kurtnoone\Xero\Resources;
 
-use Kurtnoone\Xero\Facades\Xero;
+use Kurtnoone\Xero\Enums\FilterOptions;
+use Kurtnoone\Xero\Xero;
+use InvalidArgumentException;
 
 class Invoices extends Xero
 {
-    public function get(int $page = null, string $where = null)
-    {
-        $params = http_build_query([
-            'page' => $page,
-            'where' => $where
-        ]);
+    protected array $queryString = [];
 
-        $result = Xero::get('invoices?'.$params);
+    public function filter($key, $value): Invoices
+    {
+        if (! FilterOptions::isValid($key)) {
+            throw new InvalidArgumentException("Filter option '$key' is not valid.");
+        }
+
+        $this->queryString[$key] = $value;
+
+        return $this;
+    }
+
+    public function get(): array
+    {
+        $queryString = $this->formatQueryStrings($this->queryString);
+
+        $result = parent::get('Invoices?'.$queryString);
 
         return $result['body']['Invoices'];
     }
 
-    public function find(string $contactId)
+    public function find(string $invoiceId): array
     {
-        $result = Xero::get('invoices/'.$contactId);
+        $result = parent::get('Invoices/'.$invoiceId);
 
         return $result['body']['Invoices'][0];
     }
 
-    public function onlineUrl(string $invoiceId)
+    public function onlineUrl(string $invoiceId): string
     {
-        $result = Xero::get('invoices/'.$invoiceId.'/OnlineInvoice');
+        $result = parent::get('Invoices/'.$invoiceId.'/OnlineInvoice');
 
         return $result['body']['OnlineInvoices'][0]['OnlineInvoiceUrl'];
     }
 
-    public function update(string $invoiceId, array $data)
+    public function update(string $invoiceId, array $data): array
     {
-        $result = Xero::post('invoices/'.$invoiceId, $data);
+        $result = parent::post('Invoices/'.$invoiceId, $data);
 
         return $result['body']['Invoices'][0];
     }
 
-    public function store(array $data)
+    public function store(array $data): array
     {
-        $result = Xero::post('invoices', $data);
+        $result = parent::post('Invoices', $data);
 
         return $result['body']['Invoices'][0];
+    }
+
+    public function attachments(string $invoiceId): array
+    {
+        $result = parent::get('Invoices/'.$invoiceId.'/Attachments');
+
+        return $result['body']['Attachments'];
+    }
+
+    public function attachment(string $invoiceId, ?string $attachmentId = null, ?string $fileName = null): string
+    {
+        // Depending on the application we may want to get it by the FileName instead fo the AttachmentId
+        $nameOrId = $attachmentId ? $attachmentId : $fileName;
+
+        $result = parent::get('Invoices/'.$invoiceId.'/Attachments/'.$nameOrId);
+
+        return $result['body'];
     }
 }

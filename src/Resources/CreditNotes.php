@@ -1,43 +1,52 @@
 <?php
 
-namespace Kurtnoone\Xero\Resources;
+namespace Dcblogdev\Xero\Resources;
 
-use Kurtnoone\Xero\Facades\Xero;
-use Illuminate\Support\Facades\Log;
+use Kurtnoone\Xero\Enums\FilterOptions;
+use Kurtnoone\Xero\Xero;
+use InvalidArgumentException;
 
 class CreditNotes extends Xero
 {
-    public function get(int $page = null, string $where = null)
-    {
-        $params = http_build_query([
-            'page' => $page,
-            'where' => $where
-        ]);
+    protected array $queryString = [];
 
-        $result = Xero::get('CreditNotes?'.$params);
+    public function filter($key, $value): static
+    {
+        if (! FilterOptions::isValid($key)) {
+            throw new InvalidArgumentException("Filter option '$key' is not valid.");
+        }
+
+        $this->queryString[$key] = $value;
+
+        return $this;
+    }
+
+    public function get(): array
+    {
+        $queryString = $this->formatQueryStrings($this->queryString);
+
+        $result = parent::get('CreditNotes?'.$queryString);
 
         return $result['body']['CreditNotes'];
     }
 
-    public function find(string $contactId)
+    public function find(string $contactId): array
     {
-        $result = Xero::get('CreditNotes/'.$contactId);
+        $result = parent::get('CreditNotes/'.$contactId);
 
         return $result['body']['CreditNotes'][0];
     }
 
-    public function update(string $paymentId, array $data)
+    public function update(string $contactId, array $data): array
     {
-        $result = Xero::post('CreditNotes/'.$paymentId, $data);
+        $result = $this->post('CreditNotes/'.$contactId, $data);
 
         return $result['body']['CreditNotes'][0];
     }
 
-    public function store(array $data)
+    public function store(array $data): array
     {
-        Log::info('Xero CreditNotes Store: '.json_encode($data));
-        $result = Xero::post('CreditNotes', $data);
-        Log::info('Xero CreditNotes Store Result: '.json_encode($result));
+        $result = $this->post('CreditNotes', $data);
 
         return $result['body']['CreditNotes'][0];
     }

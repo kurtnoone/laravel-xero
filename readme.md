@@ -1,3 +1,6 @@
+## Community
+
+There is a Discord community. https://discord.gg/VYau8hgwrm For quick help, ask questions in the appropriate channel.
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/Kurtnoone/laravel-xero.svg?style=flat-square)](https://packagist.org/packages/Kurtnoone/laravel-xero)
 [![Total Downloads](https://img.shields.io/packagist/dt/Kurtnoone/laravel-xero.svg?style=flat-square)](https://packagist.org/packages/Kurtnoone/laravel-xero)
@@ -32,6 +35,14 @@ You can publish the config file with:
 ```
 php artisan vendor:publish --provider="Kurtnoone\Xero\XeroServiceProvider" --tag="config"
 ```
+
+# Encrypt Tokens at rest
+You can enable token encryption at rest by setting the following in your .env file:
+
+```
+XERO_ENCRYPT=true
+```
+this will use the native Laravel Crypt library to ensure the tokens are encrypted at rest.
 
 # Migration
 

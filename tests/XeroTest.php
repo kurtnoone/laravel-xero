@@ -4,7 +4,9 @@ use Kurtnoone\Xero\Facades\Xero as XeroFacade;
 use Kurtnoone\Xero\Models\XeroToken;
 use Kurtnoone\Xero\Xero;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
     $this->XeroMock = Mockery::mock(Xero::class);
@@ -32,7 +34,7 @@ test('is connected returns true when data exists in db', function () {
         'id' => 0,
         'access_token' => '1234',
         'expires_in' => strtotime('+1 day'),
-        'scopes' => 'contacts'
+        'scopes' => 'contacts',
     ]);
 
     $connect = XeroFacade::isConnected();
@@ -48,7 +50,7 @@ test('disconnect returns true when data exists in db', function () {
         'id' => 0,
         'access_token' => '1234',
         'expires_in' => strtotime('+1 day'),
-        'scopes' => 'contacts'
+        'scopes' => 'contacts',
     ]);
 
     XeroFacade::disconnect();
@@ -62,7 +64,7 @@ test('getTokenData returns XeroToken data', function () {
         'id' => 0,
         'access_token' => '1234',
         'expires_in' => strtotime('+1 day'),
-        'scopes' => 'contacts'
+        'scopes' => 'contacts',
     ]);
 
     $data = XeroFacade::getTokenData();
@@ -80,10 +82,10 @@ test('getTenantId returns id', function () {
         'access_token' => '1234',
         'expires_in' => strtotime('+1 day'),
         'scopes' => 'contacts',
-        'tenant_id' => '1234'
+        'tenant_id' => '1234',
     ]);
 
-   expect(XeroFacade::getTenantId())->toBe('1234');
+    expect(XeroFacade::getTenantId())->toBe('1234');
 });
 
 test('getTenantName returns name', function () {
@@ -93,10 +95,10 @@ test('getTenantName returns name', function () {
         'expires_in' => strtotime('+1 day'),
         'scopes' => 'contacts',
         'tenant_id' => '1234',
-        'tenant_name' => 'Jones'
+        'tenant_name' => 'Jones',
     ]);
 
-   expect(XeroFacade::getTenantName())->toBe('Jones');
+    expect(XeroFacade::getTenantName())->toBe('Jones');
 });
 
 test('can return getAccessToken when it has not expired ', function () {
@@ -106,8 +108,41 @@ test('can return getAccessToken when it has not expired ', function () {
     XeroToken::create([
         'id' => 0,
         'access_token' => '1234',
-        'expires_in' => now()->addMinutes(15),
-        'scopes' => 'contacts'
+        'expires_in' => now()->addMinutes(25),
+        'updated_at' => strtotime('+1 day'),
+        'scopes' => 'contacts',
+    ]);
+
+    $data = XeroFacade::getAccessToken();
+
+    expect($data)->toBe('1234');
+});
+
+test('can get tokens when not-encrypted but encryption is enabled', function () {
+
+    Config::set('xero.encrypt', true);
+
+    XeroToken::create([
+        'id' => 0,
+        'access_token' => '1234',
+        'expires_in' => strtotime('+1 day'),
+        'scopes' => 'contacts',
+    ]);
+
+    $data = XeroFacade::getAccessToken();
+
+    expect($data)->toBe('1234');
+});
+
+test('can get tokens when encrypted', function () {
+
+    Config::set('xero.encrypt', true);
+
+    XeroToken::create([
+        'id' => 0,
+        'access_token' => Crypt::encryptString('1234'),
+        'expires_in' => strtotime('+1 day'),
+        'scopes' => 'contacts',
     ]);
 
     $data = XeroFacade::getAccessToken();

@@ -2,6 +2,9 @@
 
 namespace Kurtnoone\Xero;
 
+use Kurtnoone\Xero\Actions\formatQueryStringsAction;
+use Kurtnoone\Xero\Actions\StoreTokenAction;
+use Kurtnoone\Xero\Actions\tokenExpiredAction;
 use Kurtnoone\Xero\Models\XeroToken;
 use Kurtnoone\Xero\Resources\Contacts;
 use Kurtnoone\Xero\Resources\Invoices;
@@ -13,35 +16,55 @@ use Kurtnoone\Xero\Resources\PurchaseOrders;
 use Kurtnoone\Xero\Resources\Accounts;
 use Kurtnoone\Xero\Resources\Webhooks;
 use Exception;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
+/**
+ * @method static array get (string $endpoint, array $params = [])
+ * @method static array put (string $endpoint, array $params = [])
+ * @method static array post (string $endpoint, array $params = [])
+ * @method static array patch (string $endpoint, array $params = [])
+ * @method static array delete (string $endpoint, array $params = [])
+ */
 class Xero
 {
-    protected static string $baseUrl       = 'https://api.xero.com/api.xro/2.0/';
-    protected static string $authorizeUrl  = 'https://login.xero.com/identity/connect/authorize';
-    protected static string $connectionUrl = 'https://api.xero.com/connections';
-    protected static string $tokenUrl  = 'https://identity.xero.com/connect/token';
-    protected static string $revokeUrl = 'https://identity.xero.com/connect/revocation';
-    protected mixed           $tenant_id = 0;
+    protected static string $baseUrl = 'https://api.xero.com/api.xro/2.0/';
 
-    public function setTenantId($tenant_id): void
+    protected static string $authorizeUrl = 'https://login.xero.com/identity/connect/authorize';
+
+    protected static string $connectionUrl = 'https://api.xero.com/connections';
+
+    protected static string $tokenUrl = 'https://identity.xero.com/connect/token';
+
+    protected static string $revokeUrl = 'https://identity.xero.com/connect/revocation';
+
+    protected string $tenant_id = '';
+
+    public function setTenantId(string $tenant_id): void
     {
         $this->tenant_id = $tenant_id;
     }
 
     public function contacts(): Contacts
     {
-        return new Contacts();
+        return new Contacts;
+    }
+
+    public function creditnotes(): CreditNotes
+    {
+        return new CreditNotes;
     }
 
     public function invoices(): Invoices
     {
-        return new Invoices();
+        return new Invoices;
     }
 
     public function payments(): Payments
@@ -59,11 +82,6 @@ class Xero
         return new BankTransactions();
     }
 
-    public function creditnotes(): CreditNotes
-    {
-        return new CreditNotes();
-    }
-
     public function purchaseorders(): PurchaseOrders
     {
         return new PurchaseOrders();
@@ -76,26 +94,26 @@ class Xero
 
     public function webhooks(): Webhooks
     {
-        return new Webhooks();
+        return new Webhooks;
     }
 
     public function isConnected(): bool
     {
-        return !($this->getTokenData() === null);
+        return ! ($this->getTokenData() === null);
     }
 
     public function disconnect(): void
     {
         try {
-            $token  = $this->getTokenData();
+            $token = $this->getTokenData();
 
             Http::withHeaders([
-                'authorization' => "Basic ".base64_encode(config('xero.clientId').":".config('xero.clientSecret'))
+                'authorization' => 'Basic '.base64_encode(config('xero.clientId').':'.config('xero.clientSecret')),
             ])
-            ->asForm()
-            ->post(self::$revokeUrl, [
-                'token' => $token->refresh_token,
-            ])->throw();
+                ->asForm()
+                ->post(self::$revokeUrl, [
+                    'token' => $token->refresh_token,
+                ])->throw();
 
             $token->delete();
         } catch (Exception $e) {
@@ -105,50 +123,53 @@ class Xero
 
     /**
      * Make a connection or return a token where it's valid
+     *
      * @return RedirectResponse|Application|Redirector
+     *
+     * @throws Exception
      */
-    public function connect(): RedirectResponse|Application|Redirector
+    public function connect()
     {
         //when no code param redirect to Microsoft
-        if (! request()->has('code')) {
-            $url = self::$authorizeUrl . '?' . http_build_query([
-                'response_type' => 'code',
-                'client_id'     => config('xero.clientId'),
-                'redirect_uri'  => config('xero.redirectUri'),
-                'scope'         => config('xero.scopes')
-            ]);
-
-            return redirect()->away($url);
-        } elseif (request()->has('code')) {
+        if (request()->has('code')) {
             // With the authorization code, we can retrieve access tokens and other data.
             try {
                 $params = [
-                    'grant_type'   => 'authorization_code',
-                    'code'         => request('code'),
-                    'redirect_uri' => config('xero.redirectUri')
+                    'grant_type' => 'authorization_code',
+                    'code' => request('code'),
+                    'redirect_uri' => config('xero.redirectUri'),
                 ];
 
-                $resultCode = $this->dopost(self::$tokenUrl, $params);
+                $result = $this->sendPost(self::$tokenUrl, $params);
+
+                if (!isset($result['access_token'])) {
+                    \Log::error("Token endpoint did not return an access token", $result);
+                    throw new \Exception("Failed to retrieve access token. Response: " . json_encode($result));
+                }
 
                 try {
                     $response = Http::withHeaders([
-                        'Authorization' => 'Bearer ' . $resultCode['access_token'],
-                    ])->acceptJson()->get(self::$connectionUrl)->throw()->json();
+                        'Authorization' => 'Bearer ' . $result['access_token'],
+                    ])
+                        ->acceptJson()
+                        ->get(self::$connectionUrl)
+                        ->throw()
+                        ->json();
 
                     foreach ($response as $tenant) {
                         $tenantData = [
-                            'auth_event_id'    => $tenant['authEventId'],
-                            'tenant_id'        => $tenant['tenantId'],
-                            'tenant_type'      => $tenant['tenantType'],
-                            'tenant_name'      => $tenant['tenantName'],
+                            'auth_event_id' => $tenant['authEventId'],
+                            'tenant_id' => $tenant['tenantId'],
+                            'tenant_type' => $tenant['tenantType'],
+                            'tenant_name' => $tenant['tenantName'],
                             'created_date_utc' => $tenant['createdDateUtc'],
-                            'updated_date_utc' => $tenant['updatedDateUtc']
+                            'updated_date_utc' => $tenant['updatedDateUtc'],
                         ];
 
-                        $this->storeToken($resultCode, $tenantData);
+                        app(StoreTokenAction::class)($result, $tenantData, $tenant['tenantId']);
                     }
                 } catch (Exception $e) {
-                    throw new Exception('error getting tenant: ' . $e->getMessage());
+                    throw new Exception('Error getting tenant: '.$e->getMessage());
                 }
 
                 return redirect(config('xero.landingUri'));
@@ -156,18 +177,50 @@ class Xero
                 throw new Exception($e->getMessage());
             }
         }
+
+        $url = self::$authorizeUrl.'?'.http_build_query([
+            'response_type' => 'code',
+            'client_id' => config('xero.clientId'),
+            'redirect_uri' => config('xero.redirectUri'),
+            'scope' => config('xero.scopes'),
+        ]);
+
+        return redirect()->away($url);
     }
 
-    public function getTokenData(): XeroToken|null
+    public function getTokenData(): ?XeroToken
     {
         if ($this->tenant_id) {
-            return XeroToken::where('id', '=', $this->tenant_id)->first();
+            $token = XeroToken::where('tenant_id', '=', $this->tenant_id)->first();
+        } else {
+            $token = XeroToken::first();
         }
 
-        return XeroToken::first();
+        if ($token && config('xero.encrypt')) {
+            try {
+                $access_token = Crypt::decryptString($token->access_token);
+            } catch (DecryptException $e) {
+                $access_token = $token->access_token;
+            }
+
+            // Split them as a refresh token may not exist...
+            try {
+                $refresh_token = Crypt::decryptString($token->refresh_token);
+            } catch (DecryptException $e) {
+                $refresh_token = $token->refresh_token;
+            }
+
+            $token->access_token = $access_token;
+            $token->refresh_token = $refresh_token;
+        }
+
+        return $token;
     }
 
-    public function getAccessToken($redirectWhenNotConnected = true): string
+    /**
+     * @throws Exception
+     */
+    public function getAccessToken(bool $redirectWhenNotConnected = true): string
     {
         $token = $this->getTokenData();
 
@@ -175,29 +228,33 @@ class Xero
 
         $now = now()->addMinutes(5);
 
-        if ($token->expires_in < $now) {
+        if ($token->expires < $now) {
             return $this->renewExpiringToken($token);
         }
 
         return $token->access_token;
     }
 
-    public function renewExpiringToken($token)
+    /**
+     * @throws Exception
+     */
+    public function renewExpiringToken(XeroToken $token): string
     {
         $params = [
-            'grant_type'    => 'refresh_token',
+            'grant_type' => 'refresh_token',
             'refresh_token' => $token->refresh_token,
-            'redirect_uri'  => config('xero.redirectUri')
+            'redirect_uri' => config('xero.redirectUri'),
         ];
 
-        $resultCode = $this->dopost(self::$tokenUrl, $params);
+        $result = $this->sendPost(self::$tokenUrl, $params);
 
-        $this->storeToken($resultCode);
+        app(tokenExpiredAction::class)($result, $token);
+        app(StoreTokenAction::class)($result, ['tenant_id' => $token->tenant_id], $this->tenant_id);
 
-        return $resultCode['access_token'];
+        return $result['access_token'];
     }
 
-    public function getTenantId()
+    public function getTenantId(): string
     {
         $token = $this->getTokenData();
 
@@ -206,9 +263,9 @@ class Xero
         return $token->tenant_id;
     }
 
-    public function getTenantName()
+    public function getTenantName(): string
     {
-        //use id if passed otherwise use logged in user
+        //use id if passed otherwise use logged-in user
         $token = $this->getTokenData();
 
         $this->redirectIfNoToken($token);
@@ -219,101 +276,93 @@ class Xero
 
     /**
      * __call catches all requests when no found method is requested
+     *
      * @param  string  $function  - the verb to execute
      * @param  array  $args  - array of arguments
      * @return array
+     *
+     * @throws Exception
      */
-    public function __call($function, $args)
+    public function __call(string $function, array $args)
     {
         $options = ['get', 'post', 'patch', 'put', 'delete'];
-        $path    = $args[0] ?? '';
-        $data    = $args[1] ?? [];
-        $raw     = $args[2] ?? false;
-        $accept  = $args[3] ?? 'application/json';
+        $path = $args[0] ?? '';
+        $data = $args[1] ?? [];
+        $raw = $args[2] ?? false;
+        $accept = $args[3] ?? 'application/json';
+        $headers = $args[4] ?? []; // Add a new line for custom headers
 
         if (in_array($function, $options)) {
-            return $this->guzzle($function, $path, $data, $raw, $accept);
+            return $this->guzzle($function, $path, $data, $raw, $accept, $headers);
         } else {
             //request verb is not in the $options array
             throw new RuntimeException($function.' is not a valid HTTP Verb');
         }
     }
 
-    protected function redirectIfNoToken($token, $redirectWhenNotConnected = true)
+    protected function redirectIfNoToken(string $token, bool $redirectWhenNotConnected = true)
     {
         // Check if tokens exist otherwise run the oauth request
         if (! $this->isConnected() && $redirectWhenNotConnected === true) {
             return redirect()->away(config('xero.redirectUri'));
         }
-    }
 
-    /**
-     * Store token
-     * @param  $token array
-     * @param  $tentantData array|mixed
-     * @return object
-     */
-    protected function storeToken($token, $tenantData = null)
-    {
-        $data = [
-            'id_token'      => $token['id_token'],
-            'access_token'  => $token['access_token'],
-            'expires_in'    => $token['expires_in'],
-            'token_type'    => $token['token_type'],
-            'refresh_token' => $token['refresh_token'],
-            'scopes'        => $token['scope']
-        ];
-
-        if ($this->tenant_id) {
-            $where = ['id' => $this->tenant_id];
-        } elseif ($tenantData !== null) {
-            $data  = array_merge($data, $tenantData);
-            $where = ['tenant_id' => $data['tenant_id']];
-        } else {
-            $where = ['id' => 1];
-        }
-
-        return XeroToken::updateOrCreate($where, $data);
+        return false;
     }
 
     /**
      * run guzzle to process requested url
-     * @param  string  $type
-     * @param  string  $request
-     * @param  array  $data
-     * @param  bool  $raw
-     * @return array
+     *
+     * @throws Exception
      */
-    protected function guzzle($type, $request, $data = [], $raw = false, $accept = 'application/json')
+    protected function guzzle(string $type, string $request, array $data = [], bool $raw = false, string $accept = 'application/json', array $headers = []): array
     {
+        if ($data === []) {
+            $data = null;
+        }
+
         try {
             $response = Http::withToken($this->getAccessToken())
-                ->withHeaders(['Xero-tenant-id' => $this->getTenantId()])
+                ->withHeaders(array_merge(['Xero-tenant-id' => $this->getTenantId()], $headers))
                 ->accept($accept)
-                ->$type(self::$baseUrl . $request, $data)
+                ->$type(self::$baseUrl.$request, $data)
                 ->throw();
 
             return [
-                'body'    => $raw ? $response->body() : $response->json(),
-                'headers' => $response->getHeaders()
+                'body' => $raw ? $response->body() : $response->json(),
+                'headers' => $response->getHeaders(),
             ];
         } catch (RequestException $e) {
-            throw new Exception($e->response->getBody()->getContents());
+            $response = json_decode($e->response->body());
+            Log::error("Xero API Request Error: " . json_encode($response));
+            throw new Exception($response->Detail ?? "Type: $response?->Type Message: $response?->Message Error Number: $response?->ErrorNumber");
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
     }
 
-    protected static function dopost($url, $params)
+    /**
+     * @throws Exception
+     */
+    protected static function sendPost(string $url, array $params)
     {
         try {
             $response = Http::withHeaders([
-                'authorization' => "Basic " . base64_encode(config('xero.clientId') . ":" . config('xero.clientSecret'))
-            ])->asForm()->acceptJson()->post($url, $params);
+                'authorization' => 'Basic '.base64_encode(config('xero.clientId').':'.config('xero.clientSecret')),
+            ])
+                ->asForm()
+                ->acceptJson()
+                ->post($url, $params);
 
             return $response->json();
+
         } catch (Exception $e) {
-            return json_decode($e->getResponse()->getBody()->getContents(), true);
+            throw new Exception($e->getMessage());
         }
+    }
+
+    public function formatQueryStrings(array $params): string
+    {
+        return app(formatQueryStringsAction::class)($params);
     }
 }

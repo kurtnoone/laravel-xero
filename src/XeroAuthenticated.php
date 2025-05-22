@@ -4,19 +4,21 @@ namespace Kurtnoone\Xero;
 
 use Closure;
 use Kurtnoone\Xero\Facades\Xero;
+use Exception;
+use Illuminate\Http\Request;
 
 class XeroAuthenticated
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
+     *
+     * @throws Exception
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
-        if (Xero::getTokenData() === null) {
+        if (! Xero::isConnected()) {
             return Xero::connect();
         }
 
