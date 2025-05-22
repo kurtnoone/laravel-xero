@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcblogdev\Xero\Enums;
+namespace Kurtnoone\Xero\Enums;
 
 enum FilterOptions: string
 {

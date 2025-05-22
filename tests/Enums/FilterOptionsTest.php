@@ -1,6 +1,6 @@
 <?php
 
-use Dcblogdev\Xero\Enums\FilterOptions;
+use Kurtnoone\Xero\Enums\FilterOptions;
 
 use function PHPUnit\Framework\assertFalse;
 use function PHPUnit\Framework\assertTrue;

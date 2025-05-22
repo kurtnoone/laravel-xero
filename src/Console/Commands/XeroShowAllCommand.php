@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcblogdev\Xero\Console\Commands;
+namespace Kurtnoone\Xero\Console\Commands;
 
 use Illuminate\Console\Command;
 use Kurtnoone\Xero\Models\XeroToken;

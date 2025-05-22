@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcblogdev\Xero\Resources;
+namespace Kurtnoone\Xero\Resources;
 
 use Kurtnoone\Xero\Enums\FilterOptions;
 use Kurtnoone\Xero\Xero;

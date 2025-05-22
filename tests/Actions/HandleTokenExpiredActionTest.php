@@ -1,7 +1,7 @@
 <?php
 
-use Dcblogdev\Xero\Actions\tokenExpiredAction;
-use Dcblogdev\Xero\Models\XeroToken;
+use Kurtnoone\Xero\Actions\tokenExpiredAction;
+use Kurtnoone\Xero\Models\XeroToken;
 
 use function Pest\Laravel\assertDatabaseCount;
 

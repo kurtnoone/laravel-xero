@@ -1,6 +1,6 @@
 <?php
 
-use Dcblogdev\Xero\Actions\formatQueryStringsAction;
+use Kurtnoone\Xero\Actions\formatQueryStringsAction;
 
 test('format query strings action', function () {
 

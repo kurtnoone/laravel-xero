@@ -5,7 +5,7 @@ namespace Kurtnoone\Xero\Resources;
 use Kurtnoone\Xero\Facades\Xero;
 use Illuminate\Support\Facades\Log;
 
-class BankTransactions extends Xero
+class BankTransactions
 {
     public function get(int $page = null, string $where = null)
     {

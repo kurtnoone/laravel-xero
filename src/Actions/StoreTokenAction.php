@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcblogdev\Xero\Actions;
+namespace Kurtnoone\Xero\Actions;
 
-use Dcblogdev\Xero\Models\XeroToken;
+use Kurtnoone\Xero\Models\XeroToken;
 use Illuminate\Support\Facades\Crypt;
 
 class StoreTokenAction

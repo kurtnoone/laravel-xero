@@ -1,6 +1,6 @@
 <?php
 
-namespace Dcblogdev\Xero\Actions;
+namespace Kurtnoone\Xero\Actions;
 
 class formatQueryStringsAction
 {

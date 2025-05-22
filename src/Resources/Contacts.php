@@ -2,7 +2,7 @@
 
 namespace Kurtnoone\Xero\Resources;
 
-use Dcblogdev\Xero\Enums\FilterOptions;
+use Kurtnoone\Xero\Enums\FilterOptions;
 use Kurtnoone\Xero\Xero;
 use InvalidArgumentException;
 

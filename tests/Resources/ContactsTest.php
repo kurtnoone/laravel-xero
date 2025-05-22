@@ -1,7 +1,7 @@
 <?php
 
-use Dcblogdev\Xero\Facades\Xero;
-use Dcblogdev\Xero\Resources\Contacts;
+use Kurtnoone\Xero\Facades\Xero;
+use Kurtnoone\Xero\Resources\Contacts;
 
 test('invalid filter option throws exception', function () {
     Xero::contacts()
