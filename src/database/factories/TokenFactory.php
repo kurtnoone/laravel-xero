@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcblogdev\Xero\database\factories;
+namespace Kurtnoone\Xero\database\factories;
 
-use Dcblogdev\Xero\Models\XeroToken;
+use Kurtnoone\Xero\Models\XeroToken;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TokenFactory extends Factory

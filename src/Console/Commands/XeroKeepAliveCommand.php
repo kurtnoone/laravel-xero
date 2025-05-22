@@ -2,33 +2,31 @@
 
 namespace Kurtnoone\Xero\Console\Commands;
 
-use Kurtnoone\Xero\Facades\Xero;
-use Kurtnoone\Xero\Models\XeroToken;
 use Illuminate\Console\Command;
+use Kurtnoone\Xero\Models\XeroToken;
 
 class XeroKeepAliveCommand extends Command
 {
     protected $signature = 'xero:keep-alive';
 
-    protected $description = 'Run this command to refresh token if its due to expire. schedule this to run daily to avoid token expiring when using CLI commands';
+    protected $description = 'Keep the Xero token alive by refreshing it';
 
-    public function handle(): void
+    public function handle()
     {
-        $this->newLine();
-        // Fetch all tenants for when multiple tenants are in use.
-        $tenants = XeroToken::all();
+        $token = XeroToken::first();
 
-        foreach ($tenants as $tenant) {
+        if (!$token) {
+            $this->error('No Xero token found');
+            return 1;
+        }
 
-            // Set the tenant ID
-            Xero::setTenantId($tenant->tenant_id);
-
-            if (Xero::isConnected()) {
-                Xero::getAccessToken($redirectWhenNotConnected = false);
-                $this->info('Refreshing Token for Tenant: '.$tenant->tenant_name.' - Successful');
-            } else {
-                $this->info('Refreshing Token for Tenant: '.$tenant->tenant_name.' - Not Connected');
-            }
+        try {
+            app('xero')->renewExpiringToken($token);
+            $this->info('Token refreshed successfully');
+            return 0;
+        } catch (\Exception $e) {
+            $this->error('Failed to refresh token: ' . $e->getMessage());
+            return 1;
         }
     }
 }

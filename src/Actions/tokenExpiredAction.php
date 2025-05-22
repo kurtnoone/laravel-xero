@@ -1,8 +1,8 @@
 <?php
 
-namespace Dcblogdev\Xero\Actions;
+namespace Kurtnoone\Xero\Actions;
 
-use Dcblogdev\Xero\Models\XeroToken;
+use Kurtnoone\Xero\Models\XeroToken;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 

@@ -3,7 +3,7 @@
 namespace Kurtnoone\Xero\Models;
 
 use DateTimeInterface;
-use Dcblogdev\Xero\database\factories\TokenFactory;
+use Kurtnoone\Xero\database\factories\TokenFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,7 +24,16 @@ class XeroToken extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'access_token',
+        'refresh_token',
+        'id_token',
+        'tenant_id',
+        'tenant_name',
+        'tenant_type',
+        'auth_event_id',
+        'expires',
+    ];
 
     protected static function newFactory(): TokenFactory
     {
@@ -43,5 +52,6 @@ class XeroToken extends Model
 
     protected $casts = [
         'expires_in' => 'integer',
+        'expires' => 'datetime',
     ];
 }
