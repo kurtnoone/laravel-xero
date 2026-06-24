@@ -53,9 +53,16 @@ class Invoices extends Xero
 
     public function store(array $data): array
     {
-        $result = parent::post('Invoices', $data);
+        $result = parent::post('Invoices', ['Invoices' => [$data]]);
 
         return $result['body']['Invoices'][0];
+    }
+
+    public function storeMany(array $invoices): array
+    {
+        $result = parent::post('Invoices', ['Invoices' => $invoices]);
+
+        return $result['body']['Invoices'] ?? [];
     }
 
     public function attachments(string $invoiceId): array

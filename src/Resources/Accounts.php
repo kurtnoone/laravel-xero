@@ -58,17 +58,16 @@ class Accounts extends Xero
     {
         $result = Xero::put('accounts', $data);
 
-        // Ensure the 'Accounts' key exists and handle it properly
-        if (isset($result['body']['Accounts'])) {
-            if (is_array($result['body']['Accounts'])) {
-                return $result['body']['Accounts'][0];
-            } else {
-                return $result['body']['Accounts'];
-            }
-        } else {
-            // Handle the case where 'Accounts' key is not present
-            \Log::error('Unexpected Xero API response', ['response' => $result]);
-            return null;
+        \Log::info('Xero accounts::store raw response', [
+            'status'    => $result['status'] ?? null,
+            'accounts'  => $result['body']['Accounts'] ?? 'MISSING',
+        ]);
+
+        if (isset($result['body']['Accounts']) && is_array($result['body']['Accounts'])) {
+            return $result['body']['Accounts'];
         }
+
+        \Log::error('Unexpected Xero API response', ['response' => $result]);
+        return [];
     }
 }

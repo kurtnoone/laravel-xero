@@ -22,6 +22,7 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -229,7 +230,16 @@ class Xero
         $now = now()->addMinutes(5);
 
         if ($token->expires < $now) {
-            return $this->renewExpiringToken($token);
+            return Cache::lock('xero-token-refresh', 30)->block(10, function () use ($token) {
+                $freshToken = $this->getTokenData();
+                $freshExpiresAt = now()->addMinutes(5);
+
+                if ($freshToken->expires >= $freshExpiresAt) {
+                    return $freshToken->access_token;
+                }
+
+                return $this->renewExpiringToken($freshToken);
+            });
         }
 
         return $token->access_token;
@@ -333,12 +343,86 @@ class Xero
                 'headers' => $response->getHeaders(),
             ];
         } catch (RequestException $e) {
-            $response = json_decode($e->response->body());
-            Log::error("Xero API Request Error: " . json_encode($response));
-            throw new Exception($response->Detail ?? "Type: $response?->Type Message: $response?->Message Error Number: $response?->ErrorNumber");
+            throw new Exception(self::formatXeroApiError($e));
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            $message = trim($e->getMessage());
+            throw new Exception($message !== '' ? $message : 'Unknown Xero API error');
         }
+    }
+
+    protected static function formatXeroApiError(RequestException $e): string
+    {
+        $status = $e->response->status();
+        $body = $e->response->body();
+
+        Log::error('Xero API Request Error', [
+            'status' => $status,
+            'body' => $body,
+        ]);
+
+        $messages = [];
+        if ($status === 429) {
+            $messages[] = 'Rate limit exceeded';
+        }
+
+        $decoded = json_decode($body, true);
+        if (is_array($decoded)) {
+            $messages = array_merge($messages, self::extractValidationMessages($decoded));
+        }
+
+        if (empty($messages)) {
+            $fallback = trim($e->getMessage());
+            if ($fallback !== '') {
+                $messages[] = $fallback;
+            } elseif ($body !== '') {
+                $messages[] = $body;
+            } else {
+                $messages[] = 'Unknown Xero API error';
+            }
+        }
+
+        return sprintf('Xero API error (HTTP %d): %s', $status, implode('; ', array_unique($messages)));
+    }
+
+    protected static function extractValidationMessages(array $data): array
+    {
+        $messages = [];
+
+        foreach (['Message', 'Detail'] as $key) {
+            if (!empty($data[$key]) && is_string($data[$key])) {
+                $messages[] = $data[$key];
+            }
+        }
+
+        if (!empty($data['Elements']) && is_array($data['Elements'])) {
+            foreach ($data['Elements'] as $element) {
+                if (!is_array($element)) {
+                    continue;
+                }
+
+                foreach ($element['ValidationErrors'] ?? [] as $error) {
+                    if (!empty($error['Message'])) {
+                        $messages[] = $error['Message'];
+                    }
+                }
+
+                foreach ($element['LineItems'] ?? [] as $lineItem) {
+                    foreach ($lineItem['ValidationErrors'] ?? [] as $error) {
+                        if (!empty($error['Message'])) {
+                            $messages[] = $error['Message'];
+                        }
+                    }
+                }
+
+                foreach ($element['Contact']['ValidationErrors'] ?? [] as $error) {
+                    if (!empty($error['Message'])) {
+                        $messages[] = $error['Message'];
+                    }
+                }
+            }
+        }
+
+        return $messages;
     }
 
     /**

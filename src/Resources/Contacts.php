@@ -48,6 +48,6 @@ class Contacts extends Xero
     {
         $result = $this->post('Contacts', $data);
 
-        return $result['body']['Contacts'][0];
+        return $result['body']['Contacts'];
     }
 }

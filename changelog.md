@@ -46,3 +46,10 @@ All notable changes to `Laravel Xero` will be documented in this file.
 
 - Update Xero.php expiry check to use the accessor instead of expired_in column
 - Fixed failing test for getting access token
+
+## Version 1.2.0
+
+- Added cache lock around token refresh to prevent concurrent refresh races
+- Improved structured Xero API error formatting and logging
+- Added `storeMany()` batch support on invoices and credit notes
+- TradeFresh resource and accounts helper updates

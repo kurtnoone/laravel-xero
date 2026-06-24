@@ -46,8 +46,15 @@ class CreditNotes extends Xero
 
     public function store(array $data): array
     {
-        $result = $this->post('CreditNotes', $data);
+        $result = $this->post('CreditNotes', ['CreditNotes' => [$data]]);
 
         return $result['body']['CreditNotes'][0];
+    }
+
+    public function storeMany(array $creditNotes): array
+    {
+        $result = $this->post('CreditNotes', ['CreditNotes' => $creditNotes]);
+
+        return $result['body']['CreditNotes'] ?? [];
     }
 }
