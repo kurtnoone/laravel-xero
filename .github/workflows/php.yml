@@ -15,19 +15,20 @@ jobs:
     name: PHP ${{ matrix.php-versions }}
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@master
+      uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
+        extensions: sqlite, curl, fileinfo, json
         coverage: xdebug
 
     - name: Validate composer.json and composer.lock
-      run: composer validate
+      run: composer validate --strict
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest
+      run: composer install --prefer-dist --no-progress --no-interaction
 
     - name: Run test suite
       run: ./vendor/bin/pest
