@@ -31,7 +31,8 @@ class TestCase extends Orchestra
             'foreign_key_constraints' => true,
         ]);
 
-        $app['config']->set('app.key', 'base64:2fl+Ktvkfl+Fuz4Qp/A75G2RTiWVA/ZoKvp6fiiM10=');
+        $app['config']->set('app.key', 'base64:Shqqj0GXCLYlfUAdD55yNKwafdHlCDqhuT3KKaeT8E0=');
+        $app['config']->set('app.cipher', 'AES-256-CBC');
 
         require_once dirname(__DIR__).'/src/database/migrations/create_xero_tokens_table.php';
 
