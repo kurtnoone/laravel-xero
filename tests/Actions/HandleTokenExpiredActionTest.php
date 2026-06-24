@@ -13,7 +13,7 @@ test('token refresh throws exception when expired and a refresh is attempted ove
 
     app(tokenExpiredAction::class)($result, $token);
 
-    assertDatabaseCount(XeroToken::class, 0);
+    assertDatabaseCount('xero_tokens', 0);
 
 })->throws(Exception::class, 'Xero token has expired, please re-authenticate.');
 
@@ -27,5 +27,5 @@ test('token refresh does not throw an exception and token is not deleted', funct
 
     expect($response)->toBeNull();
 
-    assertDatabaseCount(XeroToken::class, 1);
+    assertDatabaseCount('xero_tokens', 1);
 });

@@ -73,7 +73,7 @@ test('getTokenData returns XeroToken data', function () {
 });
 
 test('getTokenData when no tokens exist returns null', function () {
-    expect(XeroFacade::getTokenData())->toBeNull;
+    expect(XeroFacade::getTokenData())->toBeNull();
 });
 
 test('getTenantId returns id', function () {
@@ -106,10 +106,9 @@ test('can return getAccessToken when it has not expired ', function () {
     Http::fake();
 
     XeroToken::create([
-        'id' => 0,
         'access_token' => '1234',
-        'expires_in' => now()->addMinutes(25),
-        'updated_at' => strtotime('+1 day'),
+        'expires_in' => 3600,
+        'updated_at' => now(),
         'scopes' => 'contacts',
     ]);
 
