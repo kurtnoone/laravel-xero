@@ -15,13 +15,13 @@ jobs:
     name: PHP ${{ matrix.php-versions }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        extensions: sqlite, curl, fileinfo, json
+        extensions: dom, curl, fileinfo, json, mbstring, pdo_sqlite, sqlite3
         coverage: xdebug
 
     - name: Validate composer.json and composer.lock

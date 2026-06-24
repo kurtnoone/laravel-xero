@@ -23,17 +23,16 @@ class TestCase extends Orchestra
      */
     protected function getEnvironmentSetUp($app)
     {
-        // Setup default database to use sqlite :memory:
-        $app['config']->set('database.default', 'mysql');
-        $app['config']->set('database.connections.mysql', [
+        $app['config']->set('database.default', 'sqlite');
+        $app['config']->set('database.connections.sqlite', [
             'driver' => 'sqlite',
             'database' => ':memory:',
             'prefix' => '',
+            'foreign_key_constraints' => true,
         ]);
 
-        require_once 'src/database/migrations/create_xero_tokens_table.php';
+        require_once dirname(__DIR__).'/src/database/migrations/create_xero_tokens_table.php';
 
-        // run the up() method of that migration class
         (new CreateXeroTokensTable)->up();
     }
 }
