@@ -53,3 +53,9 @@ All notable changes to `Laravel Xero` will be documented in this file.
 - Improved structured Xero API error formatting and logging
 - Added `storeMany()` batch support on invoices and credit notes
 - TradeFresh resource and accounts helper updates
+
+## Version 1.2.1
+
+- Fixed OAuth token storage failing with "Field 'scopes' doesn't have a default value" by adding `expires_in`, `token_type`, and `scopes` to `XeroToken` mass assignment
+- Merge tenant metadata when storing tokens during connect
+- Fall back to the OAuth callback scope or configured scopes when the token response omits `scope`

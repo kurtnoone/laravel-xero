@@ -15,10 +15,13 @@ class StoreTokenAction
             'expires_in' => $token['expires_in'],
             'token_type' => $token['token_type'],
             'refresh_token' => config('xero.encrypt') ? Crypt::encryptString($token['refresh_token']) : $token['refresh_token'],
-            'scopes' => $token['scope'],
+            'scopes' => $token['scope'] ?? request('scope') ?? config('xero.scopes'),
         ];
 
         if ($tenantId) {
+            if ($tenantData !== []) {
+                $data = array_merge($data, $tenantData);
+            }
             $where = ['tenant_id' => $tenantId];
         } elseif ($tenantData !== []) {
             $data = array_merge($data, $tenantData);

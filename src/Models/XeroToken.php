@@ -33,6 +33,7 @@ class XeroToken extends Model
         'tenant_type',
         'auth_event_id',
         'expires_in',
+        'token_type',
         'scopes',
         'expires',
     ];
